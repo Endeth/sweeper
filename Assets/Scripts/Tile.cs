@@ -4,53 +4,46 @@ namespace Boomsweeper
 {
     public class Tile : MonoBehaviour
     {
-        private Vector2Int _boardPosition;
-        private bool _hidden = true;
-
         private Board _parentBoard;
+        private TileVisuals _visual;
+        private Collider _collider;
 
         private int _id;
         public int id => _id;
 
-        private TextMesh _text;
+        private Vector2Int _boardPosition;
+        private bool _hidden = true;
 
         [SerializeField] private bool _hasMine;
-        public bool hasMine => _hasMine;
-
         [SerializeField] private int _neighboursWithMines = 0;
-
         public bool isFlippableNeighbour => !_hasMine && _hidden;
 
         public void Init( int id, bool hasMine )
         {
             _parentBoard = GetComponentInParent<Board>();
-            _text = GetComponentInChildren<TextMesh>();
+            _visual = GetComponent<TileVisuals>();
+            _collider = GetComponent<Collider>();
 
             _id = id;
             _hasMine = hasMine;
-
-            if( _hasMine )
-                _text.text = "B";
         }
 
-        public void Flip( bool clicked )
+        public void Flip()
         {
             _hidden = false;
 
             if( !_hasMine && _neighboursWithMines == 0 )
             {
                 var neighbours = _parentBoard.GetTileNeighbours( _boardPosition );
-                transform.localScale = new Vector3( 0.5f, 0.1f, 0.5f );
                 foreach( var tile in neighbours )
                 {
                     if( tile.isFlippableNeighbour )
-                        tile.Flip( false );
-                } 
+                        tile.Flip();
+                }
             }
 
             GameState.Instance.OnTileFlip( _hasMine );
-
-            _text.color = Color.black;
+            _visual.Flip();
         }
 
         public void CountNearbyMines()
@@ -61,13 +54,13 @@ namespace Boomsweeper
                 if( tile._hasMine )
                     _neighboursWithMines++;
             }
-            if( !_hasMine && _neighboursWithMines > 0 )
-                _text.text = _neighboursWithMines.ToString();
+
+            _visual.Init( _hasMine, _neighboursWithMines );
         }
 
         public Vector2 GetSizeOnBoard()
         {
-            return new Vector2( transform.localScale.x, transform.localScale.z );
+            return new Vector2( _collider.bounds.size.x, _collider.bounds.size.z );
         }
 
         public void SetBoardPosition( int x, int y )
@@ -83,7 +76,7 @@ namespace Boomsweeper
         private void OnMouseUp()
         {
             if( _hidden && GameState.Instance.active )
-                Flip( true );
+                Flip();
         }
     }
 }

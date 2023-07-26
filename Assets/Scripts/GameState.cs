@@ -14,14 +14,14 @@ namespace Boomsweeper
         private State _currentState = State.Active;
         public bool active => _currentState == State.Active;
 
-        [SerializeField] private TMPro.TMP_Text _victoryText;
-        [SerializeField] private TMPro.TMP_Text _defeatText;
-
         [SerializeField] private int _tilesToUncover;
+
+        private FinishVisuals _finishVfx;
 
         override protected void Awake()
         {
             base.Awake();
+            _finishVfx = GetComponent<FinishVisuals>();
 
             var minesCount = GameOptions.Instance.minesCount;
             var boardSize = GameOptions.Instance.boardSize;
@@ -40,7 +40,7 @@ namespace Boomsweeper
             if( hasMine )
             {
                 _currentState = State.Finished;
-                _defeatText.alpha = 255;
+                _finishVfx.OnFinish( false );
             }
             else
             {
@@ -48,7 +48,7 @@ namespace Boomsweeper
                 if( _tilesToUncover == 0 )
                 {
                     _currentState = State.Finished;
-                    _victoryText.alpha = 255;
+                    _finishVfx.OnFinish( true );
                 }
             }
 

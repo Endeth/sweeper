@@ -9,16 +9,5 @@ namespace Boomsweeper
         {
             SceneManager.LoadScene( "GameScene" );
         }
-
-        void OnOptionsChange()
-        {
-            //GameOptions.Instance.SetOptions;
-        }
-
-        void Update()
-        {
-            if( Input.GetMouseButton( 1 ) )
-                NewGame();
-        }
     }
 }
